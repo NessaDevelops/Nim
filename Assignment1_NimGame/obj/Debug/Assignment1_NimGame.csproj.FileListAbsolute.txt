@@ -1,0 +1,6 @@
+C:\Users\chance\Documents\Visual Studio 2015\SoftwareDesignProjects\Assignment1_NimGame\Assignment1_NimGame\bin\Debug\Assignment1_NimGame.exe.config
+C:\Users\chance\Documents\Visual Studio 2015\SoftwareDesignProjects\Assignment1_NimGame\Assignment1_NimGame\bin\Debug\Assignment1_NimGame.exe
+C:\Users\chance\Documents\Visual Studio 2015\SoftwareDesignProjects\Assignment1_NimGame\Assignment1_NimGame\bin\Debug\Assignment1_NimGame.pdb
+C:\Users\chance\Documents\Visual Studio 2015\SoftwareDesignProjects\Assignment1_NimGame\Assignment1_NimGame\obj\Debug\Assignment1_NimGame.csprojResolveAssemblyReference.cache
+C:\Users\chance\Documents\Visual Studio 2015\SoftwareDesignProjects\Assignment1_NimGame\Assignment1_NimGame\obj\Debug\Assignment1_NimGame.exe
+C:\Users\chance\Documents\Visual Studio 2015\SoftwareDesignProjects\Assignment1_NimGame\Assignment1_NimGame\obj\Debug\Assignment1_NimGame.pdb
