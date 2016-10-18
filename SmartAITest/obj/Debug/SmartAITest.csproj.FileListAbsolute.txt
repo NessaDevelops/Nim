@@ -1,0 +1,1 @@
+C:\git\SoftwareEngineeringNimGame2\SmartAITest\obj\Debug\SmartAITest.csprojResolveAssemblyReference.cache

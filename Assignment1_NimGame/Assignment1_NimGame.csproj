@@ -44,10 +44,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="enums\Player.cs" />
-    <Compile Include="Models\ComputerPlayer.cs" />
+    <Compile Include="Models\AverageValue.cs" />
+    <Compile Include="Models\BoardState.cs" />
     <Compile Include="Models\Game.cs" />
-    <Compile Include="Models\Piece.cs" />
+    <Compile Include="Models\Move.cs" />
+    <Compile Include="Models\NimPlayer.cs" />
+    <Compile Include="Models\RandomAI.cs" />
     <Compile Include="Models\Row.cs" />
+    <Compile Include="Models\SmartAI.cs" />
+    <Compile Include="Models\View.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

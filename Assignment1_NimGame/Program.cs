@@ -12,7 +12,7 @@ namespace Assignment1_NimGame
         public static void Main(string[] args)
         {
             Game game = new Game();
-            game.PlayGame();
+            game.Start();
         }
     }
 }

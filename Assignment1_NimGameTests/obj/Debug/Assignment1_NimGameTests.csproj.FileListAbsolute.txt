@@ -1,0 +1,8 @@
+C:\git\SoftwareEngineeringNimGame2\Assignment1_NimGameTests\bin\Debug\Assignment1_NimGameTests.dll
+C:\git\SoftwareEngineeringNimGame2\Assignment1_NimGameTests\bin\Debug\Assignment1_NimGameTests.pdb
+C:\git\SoftwareEngineeringNimGame2\Assignment1_NimGameTests\bin\Debug\Assignment1_NimGame.exe
+C:\git\SoftwareEngineeringNimGame2\Assignment1_NimGameTests\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+C:\git\SoftwareEngineeringNimGame2\Assignment1_NimGameTests\bin\Debug\Assignment1_NimGame.pdb
+C:\git\SoftwareEngineeringNimGame2\Assignment1_NimGameTests\obj\Debug\Assignment1_NimGameTests.csprojResolveAssemblyReference.cache
+C:\git\SoftwareEngineeringNimGame2\Assignment1_NimGameTests\obj\Debug\Assignment1_NimGameTests.dll
+C:\git\SoftwareEngineeringNimGame2\Assignment1_NimGameTests\obj\Debug\Assignment1_NimGameTests.pdb

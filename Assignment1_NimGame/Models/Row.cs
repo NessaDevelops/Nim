@@ -9,10 +9,9 @@ namespace Assignment1_NimGame.Models
     public class Row
     {
         private List<char> pieces = new List<char>();
-        
+
         public void printRow()
         {
-            //Console.WriteLine("This is a row");
             for (int j = 0; j < RowSize; ++j)
             {
                 Console.Write("*");
@@ -33,17 +32,17 @@ namespace Assignment1_NimGame.Models
 
         public bool RemovePieces(int num)
         {
-            bool result = false;
-            RowSize = RowSize - num;
-            if (num < pieces.Count() || num > 0)
+            bool validRemove = false;
+            if (num <= pieces.Count() && num > 0)
             {
                 for (int j = 0; j < num; ++j)
                 {
                     pieces.Remove(pieces.Last());
                 }
-                result = true;
+                RowSize = RowSize - num;
+                validRemove = true;
             }
-            return result;
+            return validRemove;
         }
     }
 }
