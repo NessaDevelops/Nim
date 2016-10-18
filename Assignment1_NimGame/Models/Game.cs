@@ -17,18 +17,19 @@ namespace Assignment1_NimGame.Models
         private View view = new View();
 
         public Row[] _rows;
+
         private Dictionary<BoardState, Move> player1Turns = new Dictionary<BoardState, Move>();
         private Dictionary<BoardState, Move> player2Turns = new Dictionary<BoardState, Move>();
 
-        // MY BOARD STATES CONTAIN A BOARD STATE (AMOUNT OF PIECES ON EACH ROW AND AN AVERAGE VALUE WHICH INCLUDES 
-        // THE ACTUAL WEIGHTED VALUE AND HOW MANY TIMES THE BOARD STATES HAS BEEN FOUND
+        // MY BOARD STATES CONTAIN A BOARD STATE (AMOUNT OF PIECES ON EACH ROW). MY MOVES CONTAIN THE ROW/# PIECES & AN AVERAGE 
+        // VALUE WHICH INCLUDES THE ACTUAL WEIGHTED VALUE AND HOW MANY TIMES THE BOARD STATES HAS BEEN FOUND
         private static Dictionary<BoardState, List<Move>> boardStates = new Dictionary<BoardState, List<Move>>();
 
         public Player turn = Player.Player1;
         private NimPlayer computerPlayer1;
         private NimPlayer computerPlayer2;
 
-        // # of wins each player currently holds
+        // # OF WINS EACH PLAYER HOLDS
         private int player1Wins = 0;
         private int player2Wins = 0;
 
@@ -46,20 +47,28 @@ namespace Assignment1_NimGame.Models
 
             while (!quitGame)
             {
+                // RESETS GAME TO INITIAL VALUES
                 turn = Player.Player1;
                 gameOver = false;
                 player1Turns.Clear();
                 player2Turns.Clear();
                 _rows = new Row[] { new Row(row1Size), new Row(row2Size), new Row(row3Size) };
 
+                // KEEPS PRINTING BOARD AND TAKING TURNS UNTIL NO PIECES LEFT
                 while (!gameOver)
                 {
                     PrintBoard();
                     TakeTurn(gameMode);
+                    // CHECK FOR GAME OVER AFTER EACH TURN
+                    GameOver();
+
+                    if (gameOver)
+                    {
+                        EndGame();
+                    }
                 }
-                Console.WriteLine("enter 0 to Quit, or anything else to play again");
-                string input = Console.ReadLine();
-                if (input.Equals("0"))
+                // THIS IS WHERE I CHECK IF USER WANTS TO COMPLETELY EXIT GAME
+                if (view.QuitGame())
                 {
                     quitGame = true;
                 }
@@ -68,11 +77,14 @@ namespace Assignment1_NimGame.Models
 
         public void TakeTurn(int gamemode)
         {
+            // TURN TAKING IS BASED ON GAME MODE
             switch (gamemode)
             {
+                // PLAYER VS PLAYER
                 case 0:
                     PlayerTurn();
                     break;
+                // PLAYER VS AI
                 case 1:
                     if (turn == Player.Player2)
                     {
@@ -83,6 +95,7 @@ namespace Assignment1_NimGame.Models
                         PlayerTurn();
                     }
                     break;
+                // AI (RANDOM) VS AI (SMART/LEARNING)
                 case 2:
                     if (turn == Player.Player1)
                     {
@@ -98,28 +111,25 @@ namespace Assignment1_NimGame.Models
 
         public void PlayerTurn()
         {
+            // GETS USER INPUT FOR ROW / PIECES
             int row = view.SelectRow(turn, _rows);
             int numToRemove = view.SelectPieces(row, _rows);
 
             MakeMove(row, numToRemove);
-            GameOver();
-
-            if(gameOver)
-            {
-                EndGame();
-            }
         }
 
         public void ComputerTurn(NimPlayer computerPlayer)
         {
             int row, numToRemove;
-            if (turn == Player.Player2) // computer 2 uses the learning system
+            // COMPUTER 2 USES LEARNING SYSTEM
+            if (turn == Player.Player2)
             {
                 Move move = computerPlayer.MakeMove(_rows, boardStates);
                 row = move.Row;
                 numToRemove = move.NumToRemove;
             }
-            else  // computer 1 doesn't use the learning ai
+            // COMPUTER 1 DOES NOT USE LEARNING SYSTEM
+            else
             {
                 Move move = computerPlayer.MakeMove(_rows, boardStates);
                 row = move.Row;
@@ -129,12 +139,6 @@ namespace Assignment1_NimGame.Models
             
             MakeMove(row, numToRemove);
             Console.WriteLine(_rows[0].RowSize + "/" + _rows[1].RowSize + "/" + _rows[2].RowSize);
-
-            GameOver();
-            if (gameOver)
-            {
-                EndGame();
-            }
         }
 
         public void ChangeTurn()
@@ -182,24 +186,9 @@ namespace Assignment1_NimGame.Models
 
         public void EndGame()
         {
-            Console.WriteLine("Congrats " + turn + " you are the winner of this round");
-
             IncrementWins();
-
-            Console.WriteLine("Player1 # of wins: " + player1Wins + "; Player2 # of wins: " + player2Wins);
-
+            view.EndGame(boardStates, turn, player1Wins, player2Wins);
             StoreBoardStates();
-
-            foreach (KeyValuePair<BoardState, List<Move>> item in boardStates)
-            {
-                Console.WriteLine("Boardstate: " + item.Key.ToString());
-                Console.WriteLine("# of Moves: " + item.Value.Count());
-                foreach (Move move in item.Value)
-                {
-                    Console.WriteLine("Move Row: " + move.Row + ", Move # Pieces: " + move.NumToRemove);
-                    Console.WriteLine("Value: " + move.AverageValue.GetValue);
-                }
-            }
         }
 
         public void IncrementWins()
@@ -228,43 +217,40 @@ namespace Assignment1_NimGame.Models
 
                 ++min;
 
-                if (computerPlayer2.GetType().Equals(typeof(SmartAI)))
+                if (!IsStateStored(item.Key))
                 {
-                    if (!IsStateStored(item.Key))
+                    boardStates.Add(item.Key, new List<Move>()
+                        {
+                            new Move(item.Value.Row, item.Value.NumToRemove, new AverageValue(value, 1))
+                        }
+                    );
+                }
+                else
+                {
+                    if (!IsMoveStored(item.Key, item.Value))
                     {
-                        boardStates.Add(item.Key, new List<Move>()
+                        foreach(KeyValuePair<BoardState, List<Move>> item2 in boardStates)
+                        {
+                            if(item2.Key.ToString() == item.Key.ToString())
                             {
-                                new Move(item.Value.Row, item.Value.NumToRemove, new AverageValue(value, 1))
+                                item2.Value.Add(new Move(item.Value.Row, item.Value.NumToRemove, new AverageValue(value, 1)));
                             }
-                        );
+                        }
                     }
                     else
                     {
-                        if (!IsMoveStored(item.Key, item.Value))
+                        foreach (KeyValuePair<BoardState, List<Move>> item2 in boardStates)
                         {
-                            foreach(KeyValuePair<BoardState, List<Move>> item2 in boardStates)
+                            if (item2.Key.ToString() == item.Key.ToString())
                             {
-                                if(item2.Key.ToString() == item.Key.ToString())
+                                foreach(Move thatMove in item2.Value)
                                 {
-                                    item2.Value.Add(new Move(item.Value.Row, item.Value.NumToRemove, new AverageValue(value, 1)));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            foreach (KeyValuePair<BoardState, List<Move>> item2 in boardStates)
-                            {
-                                if (item2.Key.ToString() == item.Key.ToString())
-                                {
-                                    foreach(Move thatMove in item2.Value)
+                                    if(thatMove.Row == item.Value.Row && thatMove.NumToRemove == item.Value.NumToRemove)
                                     {
-                                        if(thatMove.Row == item.Value.Row && thatMove.NumToRemove == item.Value.NumToRemove)
-                                        {
-                                            var average = thatMove.AverageValue;
-                                            thatMove.AverageValue = new AverageValue(average.GetValue + value / average.GetCount, average.GetCount + 1);
-                                        }
-                                    }                                    
-                                }
+                                        var average = thatMove.AverageValue;
+                                        thatMove.AverageValue = new AverageValue(average.GetValue + value / average.GetCount, average.GetCount + 1);
+                                    }
+                                }                                    
                             }
                         }
                     }
@@ -283,44 +269,41 @@ namespace Assignment1_NimGame.Models
 
                 ++min;
 
-                if (computerPlayer2.GetType().Equals(typeof(SmartAI)))
+                if (!IsStateStored(item.Key))
                 {
-                    if (!IsStateStored(item.Key))
-                    {
 
-                        boardStates.Add(item.Key, new List<Move>()
+                    boardStates.Add(item.Key, new List<Move>()
+                        {
+                            new Move(item.Value.Row, item.Value.NumToRemove, new AverageValue(value, 1))
+                        }
+                    );
+                }
+                else
+                {
+
+                    if (!IsMoveStored(item.Key, item.Value))
+                    {
+  
+                        foreach (KeyValuePair<BoardState, List<Move>> item2 in boardStates)
+                        {
+                            if (item2.Key.ToString() == item.Key.ToString())
                             {
-                                new Move(item.Value.Row, item.Value.NumToRemove, new AverageValue(value, 1))
+                                item2.Value.Add(new Move(item.Value.Row, item.Value.NumToRemove, new AverageValue(value, 1)));
                             }
-                        );
+                        }
                     }
                     else
                     {
-
-                        if (!IsMoveStored(item.Key, item.Value))
+                        foreach (KeyValuePair<BoardState, List<Move>> item2 in boardStates)
                         {
-  
-                            foreach (KeyValuePair<BoardState, List<Move>> item2 in boardStates)
+                            if (item2.Key.ToString() == item.Key.ToString())
                             {
-                                if (item2.Key.ToString() == item.Key.ToString())
+                                foreach (Move thatMove in item2.Value)
                                 {
-                                    item2.Value.Add(new Move(item.Value.Row, item.Value.NumToRemove, new AverageValue(value, 1)));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            foreach (KeyValuePair<BoardState, List<Move>> item2 in boardStates)
-                            {
-                                if (item2.Key.ToString() == item.Key.ToString())
-                                {
-                                    foreach (Move thatMove in item2.Value)
+                                    if (thatMove.Row == item.Value.Row && thatMove.NumToRemove == item.Value.NumToRemove)
                                     {
-                                        if (thatMove.Row == item.Value.Row && thatMove.NumToRemove == item.Value.NumToRemove)
-                                        {
-                                            var average = thatMove.AverageValue;
-                                            thatMove.AverageValue = new AverageValue(average.GetValue + value / average.GetCount, average.GetCount + 1);
-                                        }
+                                        var average = thatMove.AverageValue;
+                                        thatMove.AverageValue = new AverageValue(average.GetValue + value / average.GetCount, average.GetCount + 1);
                                     }
                                 }
                             }
@@ -371,7 +354,9 @@ namespace Assignment1_NimGame.Models
                 _rows[j].printRow();
             }
         }
+        
 
+        // UNIT TESTING METHOD
         public static bool GoodMove(BoardState state)
         {
             bool goodMove = false;

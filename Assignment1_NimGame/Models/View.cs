@@ -9,7 +9,6 @@ namespace Assignment1_NimGame.Models
 {
     public class View
     {
-
         public int SelectGameMode()
         {
             return CheckForInt("Enter 0 for player vs player, 1 for player vs cpu, or 2 for cpu vs cpu", 0, 2);
@@ -56,6 +55,37 @@ namespace Assignment1_NimGame.Models
                 }
             }
             return result;
+        }
+
+        public void EndGame(Dictionary<BoardState, List<Move>> boardStates, Player turn, int player1Wins, int player2Wins)
+        {
+            Console.WriteLine("Congrats " + turn + " you are the winner of this round");
+            Console.WriteLine("Player1 # of wins: " + player1Wins + "; Player2 # of wins: " + player2Wins);
+
+            foreach (KeyValuePair<BoardState, List<Move>> item in boardStates)
+            {
+                Console.WriteLine("Boardstate: " + item.Key.ToString());
+                Console.WriteLine("# of Moves: " + item.Value.Count());
+                foreach (Move move in item.Value)
+                {
+                    Console.WriteLine("Move Row: " + move.Row + ", Move # Pieces: " + move.NumToRemove);
+                    Console.WriteLine("Value: " + move.AverageValue.GetValue);
+                }
+            }
+        }
+
+        public bool QuitGame()
+        {
+            bool quitGame = false;
+
+            Console.WriteLine("enter 0 to Quit, or anything else to play again");
+            string input = Console.ReadLine();
+            if (input.Equals("0"))
+            {
+                quitGame = true;
+            }
+
+            return quitGame;
         }
     }
 }
