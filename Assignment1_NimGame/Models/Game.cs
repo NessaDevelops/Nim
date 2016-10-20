@@ -188,7 +188,7 @@ namespace Assignment1_NimGame.Models
         {
             IncrementWins();
             view.EndGame(boardStates, turn, player1Wins, player2Wins);
-            StoreBoardStates();
+            GetBoardStates();
         }
 
         public void IncrementWins()
@@ -203,16 +203,22 @@ namespace Assignment1_NimGame.Models
             }
         }
 
-        public void StoreBoardStates()
+        public void GetBoardStates()
+        {
+            var negativeOrPostive = turn == Player.Player1 ? -1 : 1;
+            StoreBoardStates(player1Turns, negativeOrPostive);
+            negativeOrPostive = turn == Player.Player1 ? 1 : -1;
+            StoreBoardStates(player2Turns, negativeOrPostive);
+        }
+
+        public void StoreBoardStates(Dictionary<BoardState, Move> playerTurns, decimal negativeOrPostive)
         {
             decimal value = 0;
             decimal min = 1;
-            int length = player1Turns.Count();
+            int length = playerTurns.Count();
 
-            foreach (KeyValuePair<BoardState, Move> item in player1Turns)
+            foreach (KeyValuePair<BoardState, Move> item in playerTurns)
             {
-                var negativeOrPostive = turn == Player.Player1 ? -1 : 1;
-
                 value = negativeOrPostive * min / length;
 
                 ++min;
@@ -229,61 +235,6 @@ namespace Assignment1_NimGame.Models
                 {
                     if (!IsMoveStored(item.Key, item.Value))
                     {
-                        foreach(KeyValuePair<BoardState, List<Move>> item2 in boardStates)
-                        {
-                            if(item2.Key.ToString() == item.Key.ToString())
-                            {
-                                item2.Value.Add(new Move(item.Value.Row, item.Value.NumToRemove, new AverageValue(value, 1)));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        foreach (KeyValuePair<BoardState, List<Move>> item2 in boardStates)
-                        {
-                            if (item2.Key.ToString() == item.Key.ToString())
-                            {
-                                foreach(Move thatMove in item2.Value)
-                                {
-                                    if(thatMove.Row == item.Value.Row && thatMove.NumToRemove == item.Value.NumToRemove)
-                                    {
-                                        var average = thatMove.AverageValue;
-                                        thatMove.AverageValue = new AverageValue(average.GetValue + value / average.GetCount, average.GetCount + 1);
-                                    }
-                                }                                    
-                            }
-                        }
-                    }
-                }
-            }
-
-            value = 0;
-            min = 1;
-            length = player2Turns.Count();
-
-            foreach (KeyValuePair<BoardState, Move> item in player2Turns)
-            {
-                var negativeOrPostive = turn == Player.Player1 ? 1 : -1;
-
-                value = negativeOrPostive * min / length;
-
-                ++min;
-
-                if (!IsStateStored(item.Key))
-                {
-
-                    boardStates.Add(item.Key, new List<Move>()
-                        {
-                            new Move(item.Value.Row, item.Value.NumToRemove, new AverageValue(value, 1))
-                        }
-                    );
-                }
-                else
-                {
-
-                    if (!IsMoveStored(item.Key, item.Value))
-                    {
-  
                         foreach (KeyValuePair<BoardState, List<Move>> item2 in boardStates)
                         {
                             if (item2.Key.ToString() == item.Key.ToString())
