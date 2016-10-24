@@ -16,7 +16,7 @@ namespace Assignment1_NimGame.Tests
         {
             // arrange
             Models.BoardState state = new Models.BoardState(0, 1, 1);
-            bool expected = true;
+            bool expected = false;
             // act
             bool actual = Program.TestGame(state);
             // assert
@@ -52,6 +52,66 @@ namespace Assignment1_NimGame.Tests
         {
             // arrange
             Models.BoardState state = new Models.BoardState(0, 1, 3);
+            bool expected = false;
+            // act
+            bool actual = Program.TestGame(state);
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void TestGame016()
+        {
+            // arrange
+            Models.BoardState state = new Models.BoardState(0, 1, 6);
+            bool expected = false;
+            // act
+            bool actual = Program.TestGame(state);
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void TestGame036()
+        {
+            // arrange
+            Models.BoardState state = new Models.BoardState(0, 3, 6);
+            bool expected = true;
+            // act
+            bool actual = Program.TestGame(state);
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void TestGame032()
+        {
+            // arrange
+            Models.BoardState state = new Models.BoardState(0, 3, 2);
+            bool expected = true;
+            // act
+            bool actual = Program.TestGame(state);
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void TestGame052()
+        {
+            // arrange
+            Models.BoardState state = new Models.BoardState(0, 5, 2);
+            bool expected = false;
+            // act
+            bool actual = Program.TestGame(state);
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void TestGame046()
+        {
+            // arrange
+            Models.BoardState state = new Models.BoardState(0, 4, 6);
             bool expected = true;
             // act
             bool actual = Program.TestGame(state);

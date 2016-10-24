@@ -1,5 +1,4 @@
-﻿using Assignment1_NimGame.enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,20 +12,13 @@ namespace Assignment1_NimGame.Models
         private View view = new View();
         public Row[] _rows;
 
-        private Dictionary<BoardState, Move> player1Turns = new Dictionary<BoardState, Move>();
-        private Dictionary<BoardState, Move> player2Turns = new Dictionary<BoardState, Move>();
+        private List<Player> players = new List<Player>();
+        private Player currentTurn;
 
         // MY BOARD STATES CONTAIN A BOARD STATE (AMOUNT OF PIECES ON EACH ROW). MY MOVES CONTAIN THE ROW/# PIECES & AN AVERAGE 
         // VALUE WHICH INCLUDES THE ACTUAL WEIGHTED VALUE AND HOW MANY TIMES THE BOARD STATES HAS BEEN FOUND
         private static Dictionary<BoardState, List<Move>> boardStates = new Dictionary<BoardState, List<Move>>();
-
-        public PlayerTurns turn = PlayerTurns.Player1;
-        private Player computerPlayer1;
-        private Player computerPlayer2;
-
-        // # OF WINS EACH PLAYER HOLDS
-        private int player1Wins = 0;
-        private int player2Wins = 0;
+        private BoardState previousState;
 
         private bool gameOver;
         
@@ -35,9 +27,6 @@ namespace Assignment1_NimGame.Models
             int testGamesPlayed = 0;
             bool testStateGood = true;
 
-            computerPlayer1 = new RandomAI();
-            computerPlayer2 = new SmartAI();
-
             int gameMode;
             bool quitGame = false;
 
@@ -45,10 +34,12 @@ namespace Assignment1_NimGame.Models
             if (testGame)
             {
                 gameMode = 2;
+                CreatePlayers(gameMode);
             }
             else // IF NOT TESTING ASKS USER TO PICK GAME MODE
             {
                 gameMode = view.SelectGameMode();
+                CreatePlayers(gameMode);
             }
 
             while (!quitGame)
@@ -58,17 +49,21 @@ namespace Assignment1_NimGame.Models
                 const int row3Size = 7;
 
                 // RESETS GAME TO INITIAL VALUES
-                turn = PlayerTurns.Player1;
                 gameOver = false;
-                player1Turns.Clear();
-                player2Turns.Clear();
+                foreach (Player player in players)
+                {
+                    player.Moves.Clear();
+                }
+                currentTurn = players[0];
                 _rows = new Row[] { new Row(row1Size), new Row(row2Size), new Row(row3Size) };
+                previousState = new BoardState(_rows[0].RowSize, _rows[1].RowSize, _rows[2].RowSize);
 
                 // KEEPS PRINTING BOARD AND TAKING TURNS UNTIL NO PIECES LEFT
                 while (!gameOver)
                 {
                     PrintBoard();
-                    TakeTurn(gameMode);
+                    TakeTurn();
+
                     // CHECK FOR GAME OVER AFTER EACH TURN
                     GameOver();
 
@@ -76,6 +71,7 @@ namespace Assignment1_NimGame.Models
                     {
                         EndGame();
                     }
+                    ChangeTurn();
                 }
                 // IF IT'S NOT A TEST GAME I CHECK IF USER WANTS TO PLAY ANOTHER GAME
                 if (!testGame)
@@ -88,7 +84,7 @@ namespace Assignment1_NimGame.Models
                 {
                     ++testGamesPlayed;
                     // CHECK TO SEE IF 200 TEST GAMES WERE PLAYED... IF SO QUIT GAME
-                    if (testGamesPlayed <= 200)
+                    if (testGamesPlayed == 800)
                     {
                         testStateGood = TestBoardState(testState);
                         quitGame = true;
@@ -98,100 +94,59 @@ namespace Assignment1_NimGame.Models
             return testStateGood;
         }
 
-        public void TakeTurn(int gamemode)
+        public void CreatePlayers(int gameMode)
         {
-            // TURN TAKING IS BASED ON GAME MODE
-            switch (gamemode)
+            Player player1 = new RealPlayer();
+            Player player2 = new RealPlayer();
+            Player randomAi = new RandomAI();
+            Player smartAi = new SmartAI();
+
+            currentTurn = player1;
+
+            switch (gameMode)
             {
-                // PLAYER VS PLAYER
                 case 0:
-                    PlayerTurn();
+                    players.Add(player1);
+                    players.Add(player2);
                     break;
-                // PLAYER VS AI
                 case 1:
-                    if (turn == PlayerTurns.Player2)
-                    {
-                        ComputerTurn(computerPlayer2);
-                    }
-                    else
-                    {
-                        PlayerTurn();
-                    }
+                    players.Add(player1);
+                    players.Add(smartAi);
                     break;
-                // AI (RANDOM) VS AI (SMART/LEARNING)
                 case 2:
-                    if (turn == PlayerTurns.Player1)
-                    {
-                        ComputerTurn(computerPlayer1);
-                    }
-                    else
-                    {
-                        ComputerTurn(computerPlayer2);
-                    }
+                    currentTurn = randomAi;
+                    players.Add(randomAi);
+                    players.Add(smartAi);
                     break;
             }
         }
 
-        public void PlayerTurn()
+        public void TakeTurn()
         {
-            // GETS USER INPUT FOR ROW / PIECES
-            int row = view.SelectRow(turn, _rows);
-            int numToRemove = view.SelectPieces(row, _rows);
-
-            MakeMove(row, numToRemove);
-        }
-
-        public void ComputerTurn(Player computerPlayer)
-        {
-            int row, numToRemove;
-            // COMPUTER 2 USES LEARNING SYSTEM
-            if (turn == PlayerTurns.Player2)
-            {
-                Move move = computerPlayer.MakeMove(_rows, boardStates);
-                row = move.Row;
-                numToRemove = move.NumToRemove;
-            }
-            // COMPUTER 1 DOES NOT USE LEARNING SYSTEM
-            else
-            {
-                Move move = computerPlayer.MakeMove(_rows, boardStates);
-                row = move.Row;
-                numToRemove = move.NumToRemove;
-            }
-            Console.WriteLine("Computer " + turn + " takes " + numToRemove + " from row " + row);
-            
-            MakeMove(row, numToRemove);
+            MakeMove(currentTurn.Turn(currentTurn, _rows, boardStates));
             Console.WriteLine(_rows[0].RowSize + "/" + _rows[1].RowSize + "/" + _rows[2].RowSize);
         }
 
         public void ChangeTurn()
         {
-            if (turn.Equals(PlayerTurns.Player1))
+            int index = players.FindIndex(i => i == currentTurn);
+            if (index + 1 < players.Count())
             {
-                turn = PlayerTurns.Player2;
-            }
-            else
+                currentTurn = players[index + 1];
+            } else
             {
-                turn = PlayerTurns.Player1;
+                currentTurn = players[0];
             }
         }
 
-        public void MakeMove(int row, int numToRemove)
+        public void MakeMove(Move chosenMove)
         {
-            if (_rows[row - 1].RemovePieces(numToRemove))
+            previousState = new BoardState(_rows[0].RowSize, _rows[1].RowSize, _rows[2].RowSize);
+            if (_rows[chosenMove.Row - 1].RemovePieces(chosenMove.NumToRemove))
             {
-                ChangeTurn();
-
-                // ADD COMPLETED MOVE TO LIST OF BOARD STATES FOR WHAT PLAYER MADE IT
-                if (turn == PlayerTurns.Player1)
-                {
-                    player1Turns.Add((new BoardState(_rows[0].RowSize, _rows[1].RowSize, _rows[2].RowSize)), new Move(row, numToRemove, new AverageValue(0, 0)));
-                }
-                else
-                {
-                    player2Turns.Add((new BoardState(_rows[0].RowSize, _rows[1].RowSize, _rows[2].RowSize)), new Move(row, numToRemove, new AverageValue(0, 0)));
-                }
+                currentTurn.Moves.Add(previousState, new Move(chosenMove.Row, chosenMove.NumToRemove, new AverageValue(0, 0)));
             }
+
         }
 
         public void GameOver()
@@ -209,29 +164,25 @@ namespace Assignment1_NimGame.Models
 
         public void EndGame()
         {
-            IncrementWins();
-            view.EndGame(boardStates, turn, player1Wins, player2Wins);
+            currentTurn.Wins++;
             GetBoardStates();
-        }
-
-        public void IncrementWins()
-        {
-            if (turn == PlayerTurns.Player1)
-            {
-                ++player1Wins;
-            }
-            else
-            {
-                ++player2Wins;
-            }
+            view.EndGame(boardStates, currentTurn, players[0], players[1]);
         }
 
         public void GetBoardStates()
         {
-            var negativeOrPostive = turn == PlayerTurns.Player1 ? -1 : 1;
-            StoreBoardStates(player1Turns, negativeOrPostive);
-            negativeOrPostive = turn == PlayerTurns.Player1 ? 1 : -1;
-            StoreBoardStates(player2Turns, negativeOrPostive);
+            int negativeOrPostive;
+            foreach (Player player in players)
+            {
+                if (player == currentTurn)
+                {
+                    negativeOrPostive = 1;
+                } else
+                {
+                    negativeOrPostive = -1;
+                }
+                StoreBoardStates(player.Moves, negativeOrPostive);
+            }
         }
 
         public void StoreBoardStates(Dictionary<BoardState, Move> playerTurns, decimal negativeOrPostive)
@@ -239,7 +190,6 @@ namespace Assignment1_NimGame.Models
             decimal value = 0;
             decimal min = 1;
             int length = playerTurns.Count();
-
             foreach (KeyValuePair<BoardState, Move> item in playerTurns)
             {
                 value = negativeOrPostive * min / length;

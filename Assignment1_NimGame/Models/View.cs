@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Assignment1_NimGame.enums;
 
 namespace Assignment1_NimGame.Models
 {
@@ -14,13 +13,13 @@ namespace Assignment1_NimGame.Models
             return CheckForInt("Enter 0 for player vs player, 1 for player vs cpu, or 2 for cpu vs cpu", 0, 2);
         }
 
-        public int SelectRow(PlayerTurns turn, Row[] _rows)
+        public int SelectRow(Player player, Row[] _rows)
         {
             bool isValid = false;
             int row = 1;
             while (!isValid)
             {
-                row = CheckForInt(turn + " enter the row you wish to take piece/pieces from", 1, _rows.Count());
+                row = CheckForInt(player + " enter the row you wish to take piece/pieces from", 1, _rows.Count());
                 if (_rows[row - 1].RowSize >= 1)
                 {
                     isValid = true;
@@ -57,10 +56,10 @@ namespace Assignment1_NimGame.Models
             return result;
         }
 
-        public void EndGame(Dictionary<BoardState, List<Move>> boardStates, PlayerTurns turn, int player1Wins, int player2Wins)
+        public void EndGame(Dictionary<BoardState, List<Move>> boardStates, Player winner, Player p1, Player p2)
         {
-            Console.WriteLine("Congrats " + turn + " you are the winner of this round");
-            Console.WriteLine("Player1 # of wins: " + player1Wins + "; Player2 # of wins: " + player2Wins);
+            Console.WriteLine("Congrats " + winner + " you are the winner of this round");
+            Console.WriteLine("Player1 # of wins: " + p1.Wins + "; Player2 # of wins: " + p2.Wins);
 
             foreach (KeyValuePair<BoardState, List<Move>> item in boardStates)
             {

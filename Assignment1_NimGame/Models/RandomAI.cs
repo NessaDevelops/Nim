@@ -40,5 +40,20 @@ namespace Assignment1_NimGame.Models
         {
             throw new NotImplementedException();
         }
+
+        public override Move Turn(Player currentTurn, Row[] _rows, Dictionary<BoardState, List<Move>> boardStates)
+        {
+            int row, numToRemove;
+
+            Move move = currentTurn.MakeMove(_rows, boardStates);
+            row = move.Row;
+            numToRemove = move.NumToRemove;
+            
+            Console.WriteLine("Computer " + currentTurn + " takes " + numToRemove + " from row " + row);
+
+            Move chosenMove = new Move(row, numToRemove, new AverageValue(0, 1));
+
+            return chosenMove;
+        }
     }
 }
