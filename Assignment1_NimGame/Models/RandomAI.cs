@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Assignment1_NimGame.Models
 {
-    public class RandomAI : NimPlayer
+    public class RandomAI : Player
     {
         private Random rnd = new Random();
         private List<BoardState> MoveStates = new List<BoardState>();

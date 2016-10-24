@@ -11,8 +11,17 @@ namespace Assignment1_NimGame
     {
         public static void Main(string[] args)
         {
+            BoardState testState = new BoardState(0, 0, 0);
             Game game = new Game();
-            game.Start();
+            game.Start(false, testState);
+        }
+
+        public static bool TestGame(BoardState testState)
+        {
+            bool goodState;
+            Game game = new Game();
+            goodState = game.Start(true, testState);
+            return goodState;
         }
     }
 }

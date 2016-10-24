@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Assignment1_NimGame.Models
 {
-    public class SmartAI : NimPlayer
+    public class SmartAI : Player
     {
         private Random rnd = new Random();
 

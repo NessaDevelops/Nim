@@ -43,12 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="enums\Player.cs" />
+    <Compile Include="enums\PlayerTurns.cs" />
     <Compile Include="Models\AverageValue.cs" />
     <Compile Include="Models\BoardState.cs" />
     <Compile Include="Models\Game.cs" />
     <Compile Include="Models\Move.cs" />
     <Compile Include="Models\NimPlayer.cs" />
+    <Compile Include="Models\Player.cs" />
     <Compile Include="Models\RandomAI.cs" />
     <Compile Include="Models\Row.cs" />
     <Compile Include="Models\SmartAI.cs" />

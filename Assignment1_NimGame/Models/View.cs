@@ -14,7 +14,7 @@ namespace Assignment1_NimGame.Models
             return CheckForInt("Enter 0 for player vs player, 1 for player vs cpu, or 2 for cpu vs cpu", 0, 2);
         }
 
-        public int SelectRow(Player turn, Row[] _rows)
+        public int SelectRow(PlayerTurns turn, Row[] _rows)
         {
             bool isValid = false;
             int row = 1;
@@ -57,7 +57,7 @@ namespace Assignment1_NimGame.Models
             return result;
         }
 
-        public void EndGame(Dictionary<BoardState, List<Move>> boardStates, Player turn, int player1Wins, int player2Wins)
+        public void EndGame(Dictionary<BoardState, List<Move>> boardStates, PlayerTurns turn, int player1Wins, int player2Wins)
         {
             Console.WriteLine("Congrats " + turn + " you are the winner of this round");
             Console.WriteLine("Player1 # of wins: " + player1Wins + "; Player2 # of wins: " + player2Wins);

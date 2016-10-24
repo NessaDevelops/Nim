@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Assignment1_NimGame.enums
 {
-    public enum Player
+    public enum PlayerTurns
     {
         Player1,
         Player2

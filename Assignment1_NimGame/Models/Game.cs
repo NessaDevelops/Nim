@@ -9,13 +9,8 @@ namespace Assignment1_NimGame.Models
 {
     public class Game
     {
-        const int _numRows = 3;
-        const int row1Size = 3;
-        const int row2Size = 5;
-        const int row3Size = 7;
-
+        // ARE NEEDED IN MULTIPLE FUNCTIONS ... GLOBALLY REQUIRED
         private View view = new View();
-
         public Row[] _rows;
 
         private Dictionary<BoardState, Move> player1Turns = new Dictionary<BoardState, Move>();
@@ -25,30 +20,45 @@ namespace Assignment1_NimGame.Models
         // VALUE WHICH INCLUDES THE ACTUAL WEIGHTED VALUE AND HOW MANY TIMES THE BOARD STATES HAS BEEN FOUND
         private static Dictionary<BoardState, List<Move>> boardStates = new Dictionary<BoardState, List<Move>>();
 
-        public Player turn = Player.Player1;
-        private NimPlayer computerPlayer1;
-        private NimPlayer computerPlayer2;
+        public PlayerTurns turn = PlayerTurns.Player1;
+        private Player computerPlayer1;
+        private Player computerPlayer2;
 
         // # OF WINS EACH PLAYER HOLDS
         private int player1Wins = 0;
         private int player2Wins = 0;
 
         private bool gameOver;
-        private int gameMode;
-        private bool quitGame = false;
         
-
-        public void Start()
+        public bool Start(bool testGame, BoardState testState)
         {
+            int testGamesPlayed = 0;
+            bool testStateGood = true;
+
             computerPlayer1 = new RandomAI();
             computerPlayer2 = new SmartAI();
 
-            gameMode = view.SelectGameMode();
+            int gameMode;
+            bool quitGame = false;
+
+            // FOR TESTING GAME SETS GAME MODE TO AI VS AI 
+            if (testGame)
+            {
+                gameMode = 2;
+            }
+            else // IF NOT TESTING ASKS USER TO PICK GAME MODE
+            {
+                gameMode = view.SelectGameMode();
+            }
 
             while (!quitGame)
             {
+                const int row1Size = 3;
+                const int row2Size = 5;
+                const int row3Size = 7;
+
                 // RESETS GAME TO INITIAL VALUES
-                turn = Player.Player1;
+                turn = PlayerTurns.Player1;
                 gameOver = false;
                 player1Turns.Clear();
                 player2Turns.Clear();
@@ -67,12 +77,25 @@ namespace Assignment1_NimGame.Models
                         EndGame();
                     }
                 }
-                // THIS IS WHERE I CHECK IF USER WANTS TO COMPLETELY EXIT GAME
-                if (view.QuitGame())
+                // IF IT'S NOT A TEST GAME I CHECK IF USER WANTS TO PLAY ANOTHER GAME
+                if (!testGame)
                 {
-                    quitGame = true;
+                    if (view.QuitGame())
+                    {
+                        quitGame = true;
+                    }
+                } else // IF IT IS A TEST GAME, INCREASE NUMBER OF TEST GAMES DONE BY 1
+                {
+                    ++testGamesPlayed;
+                    // CHECK TO SEE IF 200 TEST GAMES WERE PLAYED... IF SO QUIT GAME
+                    if (testGamesPlayed <= 200)
+                    {
+                        testStateGood = TestBoardState(testState);
+                        quitGame = true;
+                    }
                 }
             }
+            return testStateGood;
         }
 
         public void TakeTurn(int gamemode)
@@ -86,7 +109,7 @@ namespace Assignment1_NimGame.Models
                     break;
                 // PLAYER VS AI
                 case 1:
-                    if (turn == Player.Player2)
+                    if (turn == PlayerTurns.Player2)
                     {
                         ComputerTurn(computerPlayer2);
                     }
@@ -97,7 +120,7 @@ namespace Assignment1_NimGame.Models
                     break;
                 // AI (RANDOM) VS AI (SMART/LEARNING)
                 case 2:
-                    if (turn == Player.Player1)
+                    if (turn == PlayerTurns.Player1)
                     {
                         ComputerTurn(computerPlayer1);
                     }
@@ -118,11 +141,11 @@ namespace Assignment1_NimGame.Models
             MakeMove(row, numToRemove);
         }
 
-        public void ComputerTurn(NimPlayer computerPlayer)
+        public void ComputerTurn(Player computerPlayer)
         {
             int row, numToRemove;
             // COMPUTER 2 USES LEARNING SYSTEM
-            if (turn == Player.Player2)
+            if (turn == PlayerTurns.Player2)
             {
                 Move move = computerPlayer.MakeMove(_rows, boardStates);
                 row = move.Row;
@@ -143,13 +166,13 @@ namespace Assignment1_NimGame.Models
 
         public void ChangeTurn()
         {
-            if (turn.Equals(Player.Player1))
+            if (turn.Equals(PlayerTurns.Player1))
             {
-                turn = Player.Player2;
+                turn = PlayerTurns.Player2;
             }
             else
             {
-                turn = Player.Player1;
+                turn = PlayerTurns.Player1;
             }
         }
 
@@ -160,7 +183,7 @@ namespace Assignment1_NimGame.Models
                 ChangeTurn();
 
                 // ADD COMPLETED MOVE TO LIST OF BOARD STATES FOR WHAT PLAYER MADE IT
-                if (turn == Player.Player1)
+                if (turn == PlayerTurns.Player1)
                 {
                     player1Turns.Add((new BoardState(_rows[0].RowSize, _rows[1].RowSize, _rows[2].RowSize)), new Move(row, numToRemove, new AverageValue(0, 0)));
                 }
@@ -193,7 +216,7 @@ namespace Assignment1_NimGame.Models
 
         public void IncrementWins()
         {
-            if (turn == Player.Player1)
+            if (turn == PlayerTurns.Player1)
             {
                 ++player1Wins;
             }
@@ -205,9 +228,9 @@ namespace Assignment1_NimGame.Models
 
         public void GetBoardStates()
         {
-            var negativeOrPostive = turn == Player.Player1 ? -1 : 1;
+            var negativeOrPostive = turn == PlayerTurns.Player1 ? -1 : 1;
             StoreBoardStates(player1Turns, negativeOrPostive);
-            negativeOrPostive = turn == Player.Player1 ? 1 : -1;
+            negativeOrPostive = turn == PlayerTurns.Player1 ? 1 : -1;
             StoreBoardStates(player2Turns, negativeOrPostive);
         }
 
@@ -305,28 +328,28 @@ namespace Assignment1_NimGame.Models
                 _rows[j].printRow();
             }
         }
-        
 
-        // UNIT TESTING METHOD
-        public static bool GoodMove(BoardState state)
+        public static bool TestBoardState(BoardState state)
         {
-            bool goodMove = false;
-            decimal value = 0;
+            bool goodState = true;
+            decimal moveValue = 0;
+
             foreach(KeyValuePair<BoardState, List<Move>> item in boardStates)
             {
                 if(item.Key.ToString() == state.ToString())
                 {
                     foreach(Move thisMove in item.Value)
                     {
-                        value += thisMove.AverageValue.GetValue;
-                        if(value >= 0)
-                        {
-                            goodMove = true;
-                        }
+                        moveValue += thisMove.AverageValue.GetValue;
                     }
                 }
             }
-            return goodMove;
+
+            if (moveValue < 0)
+            {
+                goodState = false;
+            }
+            return goodState;
         }
     }
 }
